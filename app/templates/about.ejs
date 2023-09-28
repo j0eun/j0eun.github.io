@@ -8,15 +8,45 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
   <link rel="shortcut icon" href="./assets/favicon.ico" type="image/x-icon">
-  <link rel="preload" href="./styles/about.css" as="style">
-  <link rel="stylesheet" href="./styles/about.css">
+  <link rel="preload" href="./styles/article.css" as="style">
+  <link rel="stylesheet" href="./styles/article.css">
 </head>
 <body>
   <header id="top-container" role="navigation">
     <%- include(process.cwd() + '/app/templates/navigation'); %>
   </header>
   <main id="main-container">
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    <article id="article-container">
+      <section id="article-content-container">
+        <h1>About me (English)</h1>
+        <p>Malware Analyst @ Somansa</p>
+        <h2>Contact</h2>
+        <ul>
+            <li><a href="mailto:eeunjo@proton.me">eeunjo@proton.me</a></li>
+        </ul>
+        <h2>Interest</h2>
+        <ul>
+            <li>Red Teaming (esp. Recon and Initial Access)</li>
+            <li>Binary Analysis</li>
+            <li>Cyber Threat Intelligence</li>
+        </ul>
+        <br/>
+        <h1>About me (Korean)</h1>
+        <p>안녕하세요.</p>
+        <p>사이버 세상에 궁금한게 많은 팔랑귀 사람입니다.</p>
+        <p>소만사에서 악성코드 분석가로 근무하고 있습니다.</p>
+        <h2>연락처</h2>
+        <ul>
+            <li><a href="mailto:eeunjo@proton.me">eeunjo@proton.me</a></li>
+        </ul>
+        <h2>관심사</h2>
+        <ul>
+            <li>레드팀 (정찰 및 초기 침투 관련)</li>
+            <li>바이너리 분석</li>
+            <li>사이버 위협 인텔리전스</li>
+        </ul>
+      </section>
+    </article>
   </main>
 </body>
 </html>
