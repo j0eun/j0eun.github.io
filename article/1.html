@@ -1,0 +1,135 @@
+<!doctypehtml>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>if문 vs switch문 비교</title>
+
+  <meta name="viewport"content="width=device-width,initial-scale=1">
+  <meta http-equiv="X-UA-Compatible"content="ie=edge">
+
+  <link rel="shortcut icon"href="../assets/favicon.ico"type="image/x-icon">
+  <link rel="preload"href="../styles/article.css"as="style">
+  <link rel="stylesheet"href="../styles/article.css">
+</head>
+<body>
+  <header id="top-container"role="navigation">
+    <nav>
+  <a class="logo-link"href="/">
+    <h1>Cyber Security Lab</h1>
+    <span></span>
+  </a>
+  <small>
+    <a id="about"class="info-link"href="/about.html">About</a> /
+    <a id="works"class="info-link"href="/works.html">Works</a> /
+    <a id="articles"class="info-link"href="/articles.html">Articles</a>
+  </small>
+</nav>
+
+  </header>
+  <main id="main-container">
+    <article id="article-container">
+      <h1 id="article-title">
+        if문 vs switch문 비교
+      </h1>
+      
+      <time id="article-date">
+        2023.12.02
+      </time>
+      <section id="article-content-container">
+        <details><summary>Table of Contents</summary>
+<p><div class="table-of-contents"><ul><li><a href="#switch%EB%AC%B8%EC%9D%80-%EC%BD%94%EB%93%9C%EA%B0%80-%EB%82%9C%ED%95%B4%ED%95%98%EA%B2%8C-%EB%B2%88%EC%97%AD%EB%90%9C%EB%8B%A4%3F">switch문은 코드가 난해하게 번역된다?</a><li><a href="#switch%EB%AC%B8%EC%9D%80-if%EB%AC%B8%EA%B3%BC-%EC%84%B1%EB%8A%A5%EC%9D%B4-%ED%81%B0-%EC%B0%A8%EC%9D%B4%EA%B0%80-%EC%97%86%EB%8B%A4%3F">switch문은 if문과 성능이 큰 차이가 없다?</a><li><a href="#%EA%B2%B0%EB%A1%A0">결론</a></ul></div><p></p>
+</details>
+<p>최근에 C++ 개발 스터디를 시작했는데, 거기에서 들었던 흥미로운 주장이 있다.</p>
+<blockquote>
+<p>switch문은 피할 수 있다면 피하는게 좋다.</p>
+</blockquote>
+<p>조건문 사용 시 switch문보다 if문을 지향하라는 얘기였는데, 이를 뒷받침하는 근거는 두 가지로 다음과 같았다.</p>
+<ol>
+<li>코드가 난해하게 번역되어 어셈블리 코드 수준에서 디버깅이 힘들다.</li>
+<li>if문과 switch문의 성능에 큰 차이가 없다.</li>
+</ol>
+<p>성능 상 이득이 없다면 추후 디버깅 시 어려움을 겪게 될 수도 있는 switch문을 굳이 사용할 필요가 없다는 것이었다. 글쎄, 정말 그런가? 어렴풋이 머릿 속에서 떠오르는 그래프(Control Flow Graph)의 모양은 두 조건문의 성능에 차이가 없다고 보기 어려웠다. 그래서 앞선 두 가지 근거를 하나씩 살펴보며 좀 더 명확하게 차이점을 알아보고자 한다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>컴파일러</td>
+<td>Visual C/C++ 19.38.33130</td>
+</tr>
+<tr>
+<td>최적화 옵션</td>
+<td>Release 빌드 기본값</td>
+</tr>
+</tbody>
+</table>
+<p>예시 코드는 위 환경에서 빌드했다. 또한 컴파일러가 어떤 최적화 기법을 사용했는지 알아보기 위해 Binary Ninja를 사용하여 실행파일을 분석하였다.</p>
+<h1 id="switch%EB%AC%B8%EC%9D%80-%EC%BD%94%EB%93%9C%EA%B0%80-%EB%82%9C%ED%95%B4%ED%95%98%EA%B2%8C-%EB%B2%88%EC%97%AD%EB%90%9C%EB%8B%A4%3F"tabindex="-1">switch문은 코드가 난해하게 번역된다?</h1>
+<p><strong>동의한다. 나도 switch문이 if문보다 더 이해하기 어려운 코드를 생성한다고 생각한다.</strong></p>
+<p>조건식을 좌항, 우항, 그리고 비교 연산자로 구분했을 때,</p>
+<p>if문은 앞선 세 가지 모두를 매번 다르게 설정할 수 있는 반면, switch문은 좌항과 비교 연산자는 항상 동일하고 우항만 case마다 다르게 설정할 수 있다.</p>
+<p>if문으로 switch문을 대체하기 위해 중첩된 if문<sup class="footnote-ref"><a href="#fn1"id="fnref1">[1]</a></sup>을 사용했다고 가정해보자.</p>
+<pre class="hljs"><code><span class="hljs-keyword">if</span> (foo == <span class="hljs-number">1</span>) {
+  <span class="hljs-comment">// do something</span>
+} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (foo == <span class="hljs-number">2</span>) {
+  <span class="hljs-comment">// do something</span>
+} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (foo == <span class="hljs-number">3</span>) { 
+  <span class="hljs-comment">// do something</span>
+} <span class="hljs-keyword">else</span> {
+  <span class="hljs-comment">// do something</span>
+}
+</code></pre>
+<p>위의 코드는 if문이</p>
+<p>if문은 단일 조건식을 가지고 참과 거짓을 비교하기 때문에 생성되는 코드 또한 명확한 반면, switch문은 일반적으로 비교 대상이 여러 개이며, 조건식에서 좌항과 비교 연산자는 항상 같지만 우항은 각 case에 따라 상이하다. 이는 컴파일러에 의해 최적화 될 여지가 생긴다.</p>
+<pre class="hljs"><code><span class="hljs-keyword">switch</span> (foo) {
+  <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:  <span class="hljs-comment">// if foo == 1</span>
+    <span class="hljs-comment">// do something</span>
+    <span class="hljs-keyword">break</span>;
+  <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>:  <span class="hljs-comment">// if foo == 2</span>
+    <span class="hljs-comment">// do something</span>
+    <span class="hljs-keyword">break</span>;
+  <span class="hljs-keyword">default</span>: <span class="hljs-comment">// if foo != 1 and foo != 2</span>
+    <span class="hljs-comment">// do something</span>
+    <span class="hljs-keyword">break</span>;
+}
+</code></pre>
+<p>컴파일 타임에 코드가 최적화된다는 뜻은 소스코드와 의미(실행했을 때의 결과)는 같지만, 생김새가 다른 코드가 생성된다는 것을 말한다. 이는 소스코드와 동일한 코드를 예상하고 디버깅하는 개발자의 가독성을 저해하는 요소가 된다.</p>
+<h1 id="switch%EB%AC%B8%EC%9D%80-if%EB%AC%B8%EA%B3%BC-%EC%84%B1%EB%8A%A5%EC%9D%B4-%ED%81%B0-%EC%B0%A8%EC%9D%B4%EA%B0%80-%EC%97%86%EB%8B%A4%3F"tabindex="-1">switch문은 if문과 성능이 큰 차이가 없다?</h1>
+<p><strong>아니다. 조건식이 많으면 많을수록 switch문이 더 빠르다.</strong></p>
+<h1 id="%EA%B2%B0%EB%A1%A0"tabindex="-1">결론</h1>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1"class="footnote-item"><p><code>if-then-else</code>에서 else 하위에 또다른 if문이 전개되는 형태를 말한다. <code>else if</code>가 여기에 포함된다. <a href="#fnref1"class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+      </section>
+      <section id="article-navigation">
+        
+        
+          <div class="article-navigation-item article-navigation-prev">
+            <a href="/article/0.html">
+              <div class="article-navigation-arrow article-navigation-prev">＞</div>
+              <div class="article-navigation-content article-navigation-prev">
+                <p class="article-navigation-title">Buffer OverFlow? Beacon Object File!</p>
+                <p class="article-navigation-subtitle"></p>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      <section id="article-list-button-container">
+        <a href="/articles.html">
+          <div id="article-list-button">↩</div>
+        </a>
+      </section>
+    </article>
+  </main>
+
+
